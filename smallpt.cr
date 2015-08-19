@@ -18,7 +18,7 @@ class Sphere
   def intersect(r) # returns distance, 0 if nohit
     op = @p - r.o # Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0 
     eps = 1e-4; b = op.dot(r.d); det = b * b - op.dot(op) + @rad * @rad
-    if det < 0 return 0 else det = Math.sqrt(det) end
+    if det < 0; return 0 else det = Math.sqrt(det) end
     (t = b - det) > eps ? t : ((t = b + det) > eps ? t : 0)
   end
 end
@@ -50,7 +50,7 @@ def radiance(r, depth)
   x = r.o + r.d * t; n = (x - obj.p).norm; nl = n.dot(r.d) < 0 ? n : n * -1; f = obj.c
   p = f.x > f.y && f.x > f.z ? f.x : f.y > f.z ? f.y : f.z; # max refl 
   depth += 1
-  if depth > 5 if ($random.rand < p) f = f * (1 / p) else return obj.e end end
+  if depth > 5; if ($random.rand < p); f = f * (1 / p) else return obj.e end end
   if obj.refl == :diff # Ideal DIFFUSE reflection 
     r1 = 2 * Math::PI * $random.rand; r2 = $random.rand; r2s = Math.sqrt(r2)
     w = nl; u = (w.x.abs > 0.1 ? Vec.new(0, 1) : Vec.new(1)).norm; v = w % u
