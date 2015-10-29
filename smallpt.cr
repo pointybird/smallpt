@@ -73,7 +73,7 @@ w = 1024; h = 768; samps = ARGV.size == 1 ? (ARGV[0].to_i / 4) : 1 # samples
 cam = Ray.new(Vec.new(50, 52, 295.6), Vec.new(0, -0.042612, -1).norm()) # cam pos, dir 
 cx = Vec.new(w * 0.5135 / h); cy = (cx % cam.d).norm * 0.5135; c = Array(Vec).new(w * h, Vec.new)
 h.times do |y| # Loop over image rows
-  print! %{\rRendering (#{samps * 4} spp) #{sprintf("%5.2f", 100.0 * y / (h - 1))}%}
+  print %{\rRendering (#{samps * 4} spp) #{sprintf("%5.2f", 100.0 * y / (h - 1))}%}
   $random = Random.new(y * y * y)
   w.times do |x|
     i = (h - y - 1) * w + x
