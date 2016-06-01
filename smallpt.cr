@@ -1,6 +1,6 @@
 class Vec
   getter :x, :y, :z
-  def initialize(@x = 0, @y = 0, @z = 0); end
+  def initialize(@x = 0.0, @y = 0.0, @z = 0.0); end
   def +(b); Vec.new(@x + b.x, @y + b.y, @z + b.z); end
   def -(b); Vec.new(@x - b.x, @y - b.y, @z - b.z); end
   def *(b); Vec.new(@x * b, @y * b, @z * b); end
@@ -10,11 +10,11 @@ class Vec
   def %(b); Vec.new(@y * b.z - @z * b.y, @z * b.x - @x * b.z, @x * b.y - @y * b.x); end
 end
 
-class Ray; getter :o, :d; def initialize(@o, @d); end; end
+class Ray; getter :o, :d; def initialize(@o : Vec, @d : Vec); end; end
 
 class Sphere
   getter :rad, :p, :e, :c, :refl
-  def initialize(@rad, @p, @e, @c, @refl); end
+  def initialize(@rad : Float64, @p : Vec, @e : Vec, @c : Vec, @refl : Symbol); end
   def intersect(r) # returns distance, 0 if nohit
     op = @p - r.o # Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0 
     eps = 1e-4; b = op.dot(r.d); det = b * b - op.dot(op) + @rad * @rad
@@ -26,16 +26,16 @@ end
 $spheres = [ # Scene: radius, position, emission, color, material 
   Sphere.new(1e5, Vec.new( 1e5 + 1, 40.8, 81.6), Vec.new,Vec.new(0.75, 0.25, 0.25),:diff),#Left 
   Sphere.new(1e5, Vec.new(-1e5 + 99, 40.8, 81.6),Vec.new,Vec.new(0.25, 0.25, 0.75),:diff),#Rght 
-  Sphere.new(1e5, Vec.new(50, 40.8, 1e5), Vec.new,Vec.new(0.75, 0.75, 0.75), :diff),#Back 
-  Sphere.new(1e5, Vec.new(50, 40.8, -1e5 + 170), Vec.new, Vec.new, :diff),#Frnt 
-  Sphere.new(1e5, Vec.new(50, 1e5, 81.6), Vec.new, Vec.new(0.75, 0.75, 0.75), :diff),#Botm 
-  Sphere.new(1e5, Vec.new(50, -1e5 + 81.6, 81.6), Vec.new,Vec.new(0.75, 0.75, 0.75), :diff),#Top 
-  Sphere.new(16.5, Vec.new(27, 16.5, 47), Vec.new,Vec.new(1, 1, 1) * 0.999, :spec),#Mirr 
-  Sphere.new(16.5, Vec.new(73, 16.5, 78), Vec.new,Vec.new(1, 1, 1) * 0.999, :refr),#Glas 
-  Sphere.new(600, Vec.new(50, 681.6 - 0.27, 81.6), Vec.new(12, 12, 12),  Vec.new, :diff) #Lite 
+  Sphere.new(1e5, Vec.new(50.0, 40.8, 1e5), Vec.new,Vec.new(0.75, 0.75, 0.75), :diff),#Back 
+  Sphere.new(1e5, Vec.new(50.0, 40.8, -1e5 + 170), Vec.new, Vec.new, :diff),#Frnt 
+  Sphere.new(1e5, Vec.new(50.0, 1e5, 81.6), Vec.new, Vec.new(0.75, 0.75, 0.75), :diff),#Botm 
+  Sphere.new(1e5, Vec.new(50.0, -1e5 + 81.6, 81.6), Vec.new,Vec.new(0.75, 0.75, 0.75), :diff),#Top 
+  Sphere.new(16.5, Vec.new(27.0, 16.5, 47.0), Vec.new,Vec.new(1.0, 1.0, 1.0) * 0.999, :spec),#Mirr 
+  Sphere.new(16.5, Vec.new(73.0, 16.5, 78.0), Vec.new,Vec.new(1.0, 1.0, 1.0) * 0.999, :refr),#Glas 
+  Sphere.new(600.0, Vec.new(50.0, 681.6 - 0.27, 81.6), Vec.new(12.0, 12.0, 12.0),  Vec.new, :diff) #Lite 
 ]
 
-def clamp(x); x < 0 ? 0 : x > 1 ? 1 : x; end
+def clamp(x : Float64); x < 0 ? 0.0 : x > 1 ? 1.0 : x; end
 def to_int(x); ((clamp(x) ** (1 / 2.2)) * 255 + 0.5).to_i; end
 def intersect(r)
   n = $spheres.size; inf = 1e20; id = 0; t = inf
@@ -53,7 +53,7 @@ def radiance(r, depth)
   if depth > 5; if ($random.rand < p); f = f * (1 / p) else return obj.e end end
   if obj.refl == :diff # Ideal DIFFUSE reflection 
     r1 = 2 * Math::PI * $random.rand; r2 = $random.rand; r2s = Math.sqrt(r2)
-    w = nl; u = (w.x.abs > 0.1 ? Vec.new(0, 1) : Vec.new(1)).norm; v = w % u
+    w = nl; u = (w.x.abs > 0.1 ? Vec.new(0.0, 1.0) : Vec.new(1.0)).norm; v = w % u
     d = (u * Math.cos(r1) * r2s + v * Math.sin(r1) * r2s + w * Math.sqrt(1 - r2)).norm
     return obj.e + f.mult(radiance(Ray.new(x, d), depth))
   elsif obj.refl == :spec # Ideal SPECULAR reflection 
@@ -70,7 +70,7 @@ def radiance(r, depth)
 end
 
 w = 1024; h = 768; samps = ARGV.size == 1 ? (ARGV[0].to_i / 4) : 1 # samples
-cam = Ray.new(Vec.new(50, 52, 295.6), Vec.new(0, -0.042612, -1).norm()) # cam pos, dir 
+cam = Ray.new(Vec.new(50.0, 52.0, 295.6), Vec.new(0.0, -0.042612, -1.0).norm()) # cam pos, dir 
 cx = Vec.new(w * 0.5135 / h); cy = (cx % cam.d).norm * 0.5135; c = Array(Vec).new(w * h, Vec.new)
 h.times do |y| # Loop over image rows
   print %{\rRendering (#{samps * 4} spp) #{sprintf("%5.2f", 100.0 * y / (h - 1))}%}
