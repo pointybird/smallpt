@@ -1,4 +1,4 @@
-class Vec
+struct Vec
   getter :x, :y, :z
   def initialize(@x = 0.0, @y = 0.0, @z = 0.0); end
   def +(b); Vec.new(@x + b.x, @y + b.y, @z + b.z); end
@@ -10,9 +10,9 @@ class Vec
   def %(b); Vec.new(@y * b.z - @z * b.y, @z * b.x - @x * b.z, @x * b.y - @y * b.x); end
 end
 
-class Ray; getter :o, :d; def initialize(@o : Vec, @d : Vec); end; end
+struct Ray; getter :o, :d; def initialize(@o : Vec, @d : Vec); end; end
 
-class Sphere
+struct Sphere
   getter :rad, :p, :e, :c, :refl
   def initialize(@rad : Float64, @p : Vec, @e : Vec, @c : Vec, @refl : Symbol); end
   def intersect(r) # returns distance, 0 if nohit
